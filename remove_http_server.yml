@@ -1,0 +1,28 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+    - name: remove apache2 package (Ubuntu)
+      apt:
+        name: apache2
+        state: absent
+      when: ansible_distribution == "Ubuntu"
+
+    - name: remove php support for apache2 (Ubuntu)
+      apt:
+        name: libapache2-mod-php
+        state: absent
+      when: ansible_distribution == "Ubuntu"
+
+    - name: remove httpd package (CentOS)
+      yum:
+        name: httpd
+        state: absent
+      when: ansible_distribution == "CentOS"
+
+    - name: remove php support for https (CentOS)
+      apt:
+        name: php
+        state: absent
+      when: ansible_distribution == "CentOS"
