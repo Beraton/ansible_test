@@ -23,7 +23,7 @@
   tasks:
 
     - name: install apache and php packages (Ubuntu)
-      tags: apache, apache2, ubuntu
+      tags: apache,apache2,ubuntu
       apt:
         name: 
           - apache2
@@ -32,7 +32,7 @@
       when: ansible_distribution == "Ubuntu"
 
     - name: install apache and php packages (CentOS)
-      tags: apache, httpd, centos
+      tags: apache,httpd,centos
       yum:
         name: 
           - httpd
@@ -41,7 +41,7 @@
       when: ansible_distribution == "CentOS"
 
     - name: enable and start httpd service (CentOS)
-      tags: centos, systemd
+      tags: centos,systemd
       ansible.builtin.systemd:
         state: started
         enabled: yes
@@ -49,22 +49,31 @@
       when: ansible_distribution == "CentOS"
 
     - name: add port 80 to firewall (CentOS)
-      tags: centos, firewall
+      tags: centos,firewall
       ansible.builtin.command: "firewall-cmd --add-port=80/tcp"
       when: ansible_distribution == "CentOS"
+
+    - name: copy html files for website
+      tags: apache,apache2,httpd
+      copy:
+        src: site.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 0644
 
 - hosts: db_servers
   become: true
   tasks:
 
     - name: install mariadb package
-      tags: db, mariadb
+      tags: db,mariadb
       package:
         name: mariadb-server
         state: latest
 
     - name: enable and start mariadb service (CentOS)
-      tags: db, centos, mariadb
+      tags: db,centos,mariadb
       ansible.builtin.systemd:
         state: started
         enabled: yes
