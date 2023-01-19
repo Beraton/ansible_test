@@ -1,0 +1,14 @@
+- name: install mariadb package
+  tags: db,mariadb
+  package:
+    name: mariadb-server
+    state: latest
+
+# By default CentOS doesn't start services after installation
+- name: enable and start mariadb service (CentOS)
+  tags: db,centos,mariadb
+  ansible.builtin.systemd:
+    state: started
+    enabled: yes
+    name: mariadb
+  when: ansible_distribution == "CentOS"

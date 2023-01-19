@@ -1,0 +1,6 @@
+# This play here is redundant BUT can be useful when trying to CHANGE or REVOKE ssh key on our servers (revoke by setting state: absent)
+- name: add ssh key for josh
+  authorized_key:
+    user: josh
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDlLjsHU/MjMF2zHfaG0L4Kr+NogSRNryicprq/9WG9Y ansible" # public key
+    state: present
