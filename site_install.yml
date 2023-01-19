@@ -53,6 +53,38 @@
       command: "firewall-cmd --add-port=80/tcp"
       when: ansible_distribution == "CentOS"
 
+    - name: change contact ServerEmail for apache (Ubuntu)
+      tags: apache,ubuntu,httpd
+      lineinfile:
+        path: /etc/apache2/conf-available/security.conf
+        regexp: '^ServerSignature'
+        line: "ServerSignature EMail\nServerAdmin foo@bar.com"
+      when: ansible_distribution == "Ubuntu"
+      register: httpd_ubuntu
+
+    - name: restart apache2 (Ubuntu)
+      tags: apache,ubuntu,systemd,httpd
+      systemd:
+        name: apache2
+        state: restarted
+      when: httpd_ubuntu.changed
+
+    - name: change contact ServerEmail for httpd (CentOS)
+      tags: apache,centos,httpd
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^ServerAdmin'
+        line: "ServerAdmin foo@bar.com"
+      when: ansible_distribution == "CentOS"
+      register: httpd_centos
+
+    - name: restart httpd (CentOS)
+      tags: apache,centos,systemd,httpd
+      systemd:
+        name: httpd
+        state: restarted
+      when: httpd_centos.changed
+
     - name: copy html files for website
       tags: apache,apache2,httpd
       copy:
