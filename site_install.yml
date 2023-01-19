@@ -42,7 +42,7 @@
 
     - name: enable and start httpd service (CentOS)
       tags: centos,systemd
-      ansible.builtin.systemd:
+      systemd:
         state: started
         enabled: yes
         name: httpd
@@ -50,7 +50,7 @@
 
     - name: add port 80 to firewall (CentOS)
       tags: centos,firewall
-      ansible.builtin.command: "firewall-cmd --add-port=80/tcp"
+      command: "firewall-cmd --add-port=80/tcp"
       when: ansible_distribution == "CentOS"
 
     - name: copy html files for website

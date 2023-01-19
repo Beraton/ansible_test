@@ -34,6 +34,6 @@
 
     - name: remove port 80 from firewall (CentOS)
       tags: db, centos, mariadb
-      ansible.builtin.command: "firewall-cmd --remove-port=80/tcp"
+      command: "firewall-cmd --remove-port=80/tcp"
       when: ansible_distribution == "CentOS"
 
