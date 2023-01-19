@@ -1,0 +1,50 @@
+---
+
+### Run bootstrap file on newly installed servers to prepare them for the proper playbooks ###
+### This bootstrap does:
+#   - update/upgrade packages
+#   - creates user josh
+#   - add SSH key to autorized_keys for user josh
+#   - sets josh as sudoer
+
+- hosts: all
+  become: true
+  pre_tasks:
+    
+    - name: update repository index (Ubuntu)
+      tags: always
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: update repository index (CentOS)
+      tags: always
+      yum:
+        update_only: yes
+        update_cache: yes
+      when: ansible_distribution == "CentOS"
+
+- hosts: all
+  become: true
+  tasks:
+
+    - name: create josh user
+      user:
+        name: josh
+        groups: root
+
+    - name: add ssh key for josh
+      authorized_key:
+        user: josh
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDlLjsHU/MjMF2zHfaG0L4Kr+NogSRNryicprq/9WG9Y ansible" #Public key
+        state: present
+
+    #Remember to put high restrictions on this file
+    - name: add sudoers file for josh
+      copy:
+        src: sudoer_josh
+        dest: /etc/sudoers.d/josh
+        owner: root
+        group: root
+        mode: 0440
