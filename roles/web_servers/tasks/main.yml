@@ -1,29 +1,17 @@
-- name: install apache and php packages (Ubuntu)
+- name: install apache and php packages
   tags: apache,apache2,ubuntu
   apt:
     name: 
-      - apache2
-      - libapache2-mod-php
+      - "{{ apache_package_name }}"
+      - "{{ php_package_name }}"
     state: latest
-  when: ansible_distribution == "Ubuntu"
 
-- name: install apache and php packages (CentOS)
-  tags: apache,httpd,centos
-  yum:
-    name: 
-      - httpd
-      - php
-    state: latest
-  when: ansible_distribution == "CentOS"
-
-# By default CentOS doesn't start services after installation
-- name: enable and start httpd service (CentOS)
+- name: enable and start httpd service
   tags: centos,systemd
   systemd:
+    name: "{{ apache_service }}"
     state: started
     enabled: yes
-    name: httpd
-  when: ansible_distribution == "CentOS"
 
 # By default CentOS doesn't open appropriate ports on firewall
 - name: add port 80 to firewall (CentOS)
@@ -36,34 +24,18 @@
   lineinfile:
     path: /etc/apache2/conf-available/security.conf
     regexp: '^ServerAdmin'
-    line: ServerAdmin foo@bar.com
+    line: ServerAdmin some@email.net
   when: ansible_distribution == "Ubuntu"
-  register: httpd_ubuntu # Registering state of this play here
-
-# Restarting apache after making changes to the configuration file for Ubuntu
-- name: restart apache2 (Ubuntu)
-  tags: apache,ubuntu,systemd,httpd
-  systemd:
-    name: apache2
-    state: restarted
-  when: httpd_ubuntu.changed # Running this play ONLY WHEN httpd_ubuntu has changed
+  notify: restart_apache
 
 - name: change contact ServerEmail for httpd (CentOS)
   tags: apache,centos,httpd
   lineinfile:
     path: /etc/httpd/conf/httpd.conf
     regexp: '^ServerAdmin'
-    line: ServerAdmin foo@bar.com
+    line: ServerAdmin some@email.net
   when: ansible_distribution == "CentOS"
-  register: httpd_centos # Registering state of this play here
-
-# Restarting apache after making changes to the configuration file for CentOS
-- name: restart httpd (CentOS)
-  tags: apache,centos,systemd,httpd
-  systemd:
-    name: httpd
-    state: restarted
-  when: httpd_centos.changed # Running this play ONLY WHEN httpd_centos has changed
+  notify: restart_apacge
 
 # Copying HTML file from local machine to all web servers
 - name: copy html files for website
